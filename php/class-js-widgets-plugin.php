@@ -82,6 +82,7 @@ class JS_Widgets_Plugin {
 
 		add_filter( 'widget_customizer_setting_args', array( $this, 'filter_widget_customizer_setting_args' ), 100, 2 );
 		add_action( 'wp_default_scripts', array( $this, 'register_scripts' ), 20 );
+		add_action( 'wp_default_styles', array( $this, 'register_styles' ), 20 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ), 100 );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_pane_scripts' ) );
@@ -121,6 +122,14 @@ class JS_Widgets_Plugin {
 		$suffix = ( SCRIPT_DEBUG ? '' : '.min' ) . '.js';
 		$plugin_dir_url = plugin_dir_url( dirname( __FILE__ ) );
 
+		$handle = 'select2';
+		if ( ! $wp_scripts->query( $handle, 'registered' ) ) {
+			$src = plugins_url( 'bower_components/select2/dist/js/select2.full' . $suffix, dirname( __FILE__ ) );
+			$deps = array( 'jquery' );
+			$in_footer = 1;
+			$wp_scripts->add( $handle, $src, $deps, $this->version, $in_footer );
+		}
+
 		$handle = 'react';
 		if ( ! $wp_scripts->query( $handle, 'registered' ) ) {
 			$src = $plugin_dir_url . 'bower_components/react/react' . $suffix;
@@ -156,6 +165,30 @@ class JS_Widgets_Plugin {
 		foreach ( $wp_widget_factory->widgets as $widget ) {
 			if ( $widget instanceof WP_JS_Widget ) {
 				$widget->register_scripts( $wp_scripts );
+			}
+		}
+	}
+
+	/**
+	 * Register styles.
+	 *
+	 * @param WP_Styles $wp_styles Styles.
+	 */
+	public function register_styles( WP_Styles $wp_styles ) {
+		global $wp_widget_factory;
+		$suffix = ( SCRIPT_DEBUG ? '' : '.min' ) . '.css';
+
+		$handle = 'select2';
+		if ( ! $wp_styles->query( $handle, 'registered' ) ) {
+			$src = plugins_url( 'bower_components/select2/dist/css/select2' . $suffix, dirname( __FILE__ ) );
+			$deps = array();
+			$wp_styles->add( $handle, $src, $deps, $this->version );
+		}
+
+		// Register scripts for widgets.
+		foreach ( $wp_widget_factory->widgets as $widget ) {
+			if ( $widget instanceof WP_JS_Widget ) {
+				$widget->register_styles( $wp_styles );
 			}
 		}
 	}
@@ -264,6 +297,8 @@ class JS_Widgets_Plugin {
 	 */
 	public function upgrade_core_widgets() {
 		global $wp_widget_factory;
+
+		register_widget( 'WP_JS_Widget_Post_Collection' );
 
 		$registered_widgets = array();
 		foreach ( $wp_widget_factory->widgets as $key => $widget ) {
