@@ -110,7 +110,9 @@ module.exports = function( grunt ) {
 					'readme.txt',
 					'bower_components/react/react-dom.js',
 					'bower_components/react/react.js',
-					'bower_components/redux/index.js'
+					'bower_components/redux/index.js',
+					'bower_components/select2/dist/js/select2.full*',
+					'bower_components/select2/dist/css/*'
 				],
 				dest: 'build',
 				expand: true,

@@ -23,3 +23,8 @@ composer.lock
 !/bower_components/react/react.min.js
 /bower_components/redux/*
 !/bower_components/redux/index.js
+/bower_components/select2/*
+!/bower_components/select2/dist
+/bower_components/select2/dist/js/*.js
+!/bower_components/select2/dist/js/select2.full*
+!/bower_components/select2/dist/css/*
